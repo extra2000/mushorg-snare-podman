@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: snare-pod
+  name: snare-pod
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: localhost/default.json
+spec:
+  restartPolicy: Never #OnFailure
+  hostNetwork: true
+  containers:
+  - name: srv01
+    image: localhost/extra2000/mushorg/snare
+    securityContext:
+      allowPrivilegeEscalation: false
+      privileged: false
+      capabilities:
+        add: []
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+      seLinuxOptions:
+        type: snare_podman.process
+    resources:
+      requests:
+        memory: 200Mi
+        cpu: 1000m
+      limits:
+        memory: 200Mi
+        cpu: 1000m
+    env:
+    - name: TANNER
+      valueFrom:
+        configMapKeyRef:
+          name: snare-configmap
+          key: tanner
